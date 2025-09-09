@@ -48,4 +48,17 @@ class TodoViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['patch'])
     def complete(self, request: Request, pk: int=None):
-        pass
+        serializer = TodoCompleteSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        todo = self.get_object()
+        if todo.completed:
+            return Response({'message': 'This todo task is already completed.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            todo.complete()
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

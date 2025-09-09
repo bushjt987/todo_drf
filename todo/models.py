@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import F
 
+from todo import tasks
+
 
 class Todo(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -25,4 +27,6 @@ class Todo(models.Model):
             self.save(update_fields='position')
 
     def complete(self) -> None:
-        pass
+        self.completed = True
+        self.save(update_fields='completed')
+        tasks.send_todo_completed_email.delay(self.id)

@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+import os
 from datetime import timedelta
 from pathlib import Path
 
@@ -164,16 +165,13 @@ SPECTACULAR_SETTINGS = {
         'persistAuthorization': True,
         'displayRequestDuration': True,
     },
-
-    # # Security scheme for JWT
-    # 'APPEND_COMPONENTS': {
-    #     'securitySchemes': {
-    #         'Bearer': {
-    #             'type': 'http',
-    #             'scheme': 'bearer',
-    #             'bearerFormat': 'JWT',
-    #         }
-    #     }
-    # },
-    # 'SECURITY': [{'Bearer': []}],
 }
+
+# Email (console)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST_EMAIL_ADDRESS = 'donotreply@todoapp.com'
+
+
+# Celery
+CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
