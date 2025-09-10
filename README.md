@@ -34,3 +34,56 @@ validation to check if the supplied new position is an existing position or exce
 5. Finally, test the `PATCH /api/todo/complete/id` endpoint. This will mock and email being sent using a celery task.
 To view the output, you can see if in the running `docker-compose up` command, or run `docker-compose logs celery`. 
 You can also clear the completion flag by sending `False` which will not send an email.
+
+## Project Structure
+This is a simple Django project with one app called `todo`. 
+
+I handled the DRF routing for this app's api in the main
+`urls.py` file to reduce complexity with just one app. This file also handles routing for the `rest_framework_simplejwt`
+views for auth.
+
+Serializers, viewsets, and tasks are all within the `todo` app. Business logic for completing and reordering tasks were
+abstracted to the `Todo` model itself.
+
+I also added a management command called `generate_test_users` that creates a django superuser and two normal users for
+quick testing.
+
+The `uv` module's files for dep management are in the project root.
+
+## Environment Configuration
+This app relies on the use of per-environment `settings.py` files to aid in configuration across different environments.
+`django-environ` was utilized to read both a `.env` file for local configuration, as well as to read env vars in cloud
+deployments. The specific settings file can be configured using an env var. For this assessment, I used two settings files:
+`local.py` and `production.py`. The local file reads a .env file located in the project root for local development, with
+defaults set for all vars. 
+
+Using different settings files allows us to make different selections for middleware, backends, installed apps, etc. For
+example:
+
+### local.py
+- `drf-spectacular` is in `INSTALLED_APPS` to enable the Swagger API
+- `SPECTACULAR_SETTINGS` are defined for Swagger
+- `django.core.mail.backends.console.EmailBackend` is used to send mock test emails in the celery container
+
+### production.py
+- `drf-spectacular` is NOT in `INSTALLED_APPS` to prevent anyone from learning the API endpoints and schemas
+- `SPECTACULAR_SETTINGS` are NOT defined due to the above
+- `django.core.mail.backends.smtp.EmailBackend` is used as a production backend that can connect to an actual mail server
+- `storages.backends.s3boto3.S3StaticStorage` is used as the storage backend to pull static files from AWS S3
+
+Additional settings files could be created for dev/staging/demo environments along the same lines.
+
+## Considerations
+- Used `drf-spectacular` to display the API in Swagger for testing and development; much better experience than using
+DRF's built in interface.
+- Used `rest_framework_simplejwt` for a simple JWT auth implementation with provided `login` and `refresh_token` views.
+JWT has become an industry standard and plays nice with modern frontend libs.
+- Used `uv` for dependency management. I previously used `poetry` and find that `uv` offers much of the same but with
+better speed and solves most of the issues I had with `poetry`. Noticeable speed up with CI/CD pipelines.
+- Used `django-environ` for handling env vars in settings files. It handles using .env files locally and env vars in 
+cloud deployments elegantly.
+
+## Time Spent
+I spent roughly 6.5 hours building the app and writing this README. 
+
+The Github commit history reflects around 7.5 hours, which included a 1 hour break for dinner.
