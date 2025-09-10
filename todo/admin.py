@@ -9,10 +9,9 @@ class TodoAdmin(admin.ModelAdmin):
         'id',
         'user',
         'position',
+        'completed',
         'text'
     )
-
-    fields = ()
 
     readonly_fields = (
         'id',

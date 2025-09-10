@@ -12,16 +12,19 @@ class TodoSerializer(serializers.ModelSerializer):
 class TodoCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Todo
-        fields = ('text',)
+        fields = ('id', 'text', 'position')
+        read_only_fields = ['id', 'position']
 
 
 class TodoCompleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Todo
-        fields = ('completed',)
+        fields = ('id', 'completed',)
+        read_only_fields = ['id']
 
 
 class TodoReorderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Todo
-        fields = ('position',)
+        fields = ('id', 'position',)
+        read_only_fields = ['id']

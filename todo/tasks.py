@@ -2,11 +2,12 @@ from django.core.mail import send_mail
 
 from config import settings
 from config.celery import app
-from todo.models import Todo
 
 
 @app.task()
 def send_todo_completed_email(todo_id: int) -> None:
+    from todo.models import Todo
+
     todo = Todo.objects.filter(id=todo_id).select_related('user').first()
 
     send_mail(
